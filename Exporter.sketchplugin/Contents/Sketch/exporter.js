@@ -3,13 +3,31 @@
 @import "resizing_constraint.js";
 @import "resizing_type.js";
 
+
+var getArtboardGroupsInPage = function(page, context, includeNone = true) {
+  const artboardsSrc = page.artboards();
+  const artboards = [];
+
+  artboardsSrc.forEach(function(artboard){
+      if( !artboard.isKindOfClass(MSSymbolMaster)){
+        artboards.push(artboard);
+      }
+  });
+
+  return Utils.getArtboardGroups(artboards, context);  
+}
+
 class Exporter {
 
-  constructor(selectedPath, page, context) {
+  constructor(selectedPath, doc, page, context) {
     this.prepareOutputFolder(selectedPath);
+    this.doc = doc;
     this.page = page;
     this.context = context;
     this.retinaImages = Utils.valueForKeyOnDocument(Constants.RETINA_IMAGES, context, 1) === 1;
+
+    this.Settings = require('sketch/settings')
+
   }
 
   hasMobileMenu() {
@@ -246,13 +264,30 @@ class Exporter {
     const width = Math.round(absoluteRect.size.width);
     const height = Math.round(absoluteRect.size.height);
 
-    const artboardName = command.valueForKey_onLayer_forPluginIdentifier(Constants.ARTBOARD_LINK, layer, this.context.plugin.identifier());
+    let targetArtboadName = '';
+    //log("---------------");
+    //log(layer.name());    
+    //log(layer.parentArtboard().name());
+    if(layer.flow()!=null){
+      //log("has a flow");      
+      const target = layer.flow().destinationArtboard();
+      if(target!=null){
+        targetArtboadName = target.name();
+      }else{        
+        //log(layer.flow());
+      }
+      //log(targetArtboadName);
+    }
+
+    const artboardName = targetArtboadName!=''?targetArtboadName:command.valueForKey_onLayer_forPluginIdentifier(Constants.ARTBOARD_LINK, layer, this.context.plugin.identifier());
     if (artboardName != null && artboardName != "") {
       // artboard link
       hotspots.push({href: Utils.toFilename(artboardName) + ".html", x: x, y: y, width: width, height: height});
     } else {
       // external link
-      let externalLink = command.valueForKey_onLayer_forPluginIdentifier(Constants.EXTERNAL_LINK, layer, this.context.plugin.identifier());
+      //let externalLink = command.valueForKey_onLayer_forPluginIdentifier(Constants.EXTERNAL_LINK, layer, this.context.plugin.identifier());
+      let externalLink = this.Settings.layerSettingForKey(layer,Constants.EXTERNAL_LINK)
+
       if (externalLink != null && externalLink != "") {
         const openLinkInNewWindow = command.valueForKey_onLayer_forPluginIdentifier(Constants.OPEN_LINK_IN_NEW_WINDOW, layer, this.context.plugin.identifier());
         const regExp = new RegExp("^http(s?)://");
@@ -536,9 +571,17 @@ class Exporter {
     }, this);
   }
 
-  getArtboardGroups() {
-    //log("getArtboardGroups()");
-    const artboardGroups = Utils.getArtboardGroups(this.page.artboards(), this.context);
+
+
+  getArtboardGroups(context) {
+    log("getArtboardGroups()");
+
+    const artboardGroups = [];
+    this.doc.pages().forEach(function(page){
+      if (1==1 || !Utils.isSymbolsPage(page)) {
+        artboardGroups.push.apply(artboardGroups, getArtboardGroupsInPage(page, context, false));
+      }
+    });
 
     artboardGroups.forEach(function (artboardGroup) {
       // set mobile menu layer
@@ -564,7 +607,7 @@ class Exporter {
 
   exportArtboards() {
     //log("exportArtboards()");
-    this.artboardGroups = this.getArtboardGroups();
+    this.artboardGroups = this.getArtboardGroups(this.context);
 
     /*this.artboardGroups.forEach(function(artboardGroup){
       artboardGroup.forEach(function (artboardData) {

@@ -17,9 +17,9 @@ var Constants = {
   IMAGES_DIRECTORY: "images/",
   CSS_DIRECTORY: "css/",
   JS_DIRECTORY: "js/",
-  PLUGIN_IDENTIFIER: "com.markhorgan.sketch.clickThruPrototype"
+  PLUGIN_IDENTIFIER: "com.cloudblue.sketch.exporter"
 };
 
 Constants.KEYS = [Constants.ARTBOARD_LINK, Constants.EXTERNAL_LINK, Constants.OPEN_LINK_IN_NEW_WINDOW,
-  Constants.IS_MOBILE_MENU_BUTTON, Constants.IS_MOBILE_MENU, Constants.DIALOG_TYPE, Constants.DIALOG_TEXT];
+Constants.IS_MOBILE_MENU_BUTTON, Constants.IS_MOBILE_MENU, Constants.DIALOG_TYPE, Constants.DIALOG_TEXT];
 
