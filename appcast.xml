@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"  xmlns:dc="http://purl.org/dc/elements/1.1/">
     <channel>
-        <title>Click-Thru Prototype</title>
+        <title>Exporter</title>
         <link>https://raw.githubusercontent.com/markhorgan/click-thru-prototype/master/appcast.xml</link>
         <description>Generates a HTML clickable prototype of your responsive website design</description>
         <language>en</language>
