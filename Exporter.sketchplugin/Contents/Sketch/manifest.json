@@ -1,13 +1,13 @@
 {
   "name": "Exporter",
   "description": "Generates a HTML clickable prototype (based on Clickable Prototype by Mark Horgan)",
-  "author" : "Mark Horgan and Maxim Bazarov",
+  "author" : "Maxim Bazarov",
   "homepage": "",
   "appcast": "",
   "identifier" : "com.cloudblue.sketch.exporter",
   "compatibleVersion": 3,
   "bundleVersion": 1,
-  "version" : "1.1.1",
+  "version" : "1.0.0",
   "commands" : [   
     {
       "script" : "external_link.js",
