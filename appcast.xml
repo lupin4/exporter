@@ -6,11 +6,11 @@
         <description>Generates a HTML clickable prototype</description>
         <language>en</language>
         <item>
-            <title>Version 1.0.0</title>
+            <title>Version 1.0.1</title>
             <description>
                 <![CDATA[
                    <ul>
-                    <li>First release</li>
+                    <li>Use a current document name as a name of output folder (instead of old "prototype")</li>
                    </ul>
                 ]]>
             </description>
