@@ -7,7 +7,7 @@
   "identifier" : "com.cloudblue.sketch.exporter",
   "compatibleVersion": 3,
   "bundleVersion": 1,
-  "version" : "1.0.1",
+  "version" : "1.0.2",
   "commands" : [   
     {
       "script" : "external_link.js",

@@ -6,15 +6,15 @@
         <description>Generates a HTML clickable prototype</description>
         <language>en</language>
         <item>
-            <title>Version 1.0.1</title>
+            <title>Version 1.0.2</title>
             <description>
                 <![CDATA[
                    <ul>
-                    <li>Use a current document name as a name of output folder (instead of old "prototype")</li>
+                    <li>Test updating system>
                    </ul>
                 ]]>
             </description>
-            <enclosure url="https://github.com/MaxBazarov/exporter/raw/master/Exporter.sketchplugin.zip" sparkle:version="1.0.0"/>
+            <enclosure url="https://github.com/MaxBazarov/exporter/raw/master/Exporter.sketchplugin.zip" sparkle:version="1.0.2"/>
         </item>
     </channel>
 </rss>
