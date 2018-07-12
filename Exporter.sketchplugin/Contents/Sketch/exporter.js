@@ -19,11 +19,11 @@ var getArtboardGroupsInPage = function(page, context, includeNone = true) {
 
 class Exporter {
 
-  constructor(selectedPath, doc, page, context) {
-    this.prepareOutputFolder(selectedPath);
+  constructor(selectedPath, doc, page, context) {    
     this.doc = doc;
     this.page = page;
     this.context = context;
+    this.prepareOutputFolder(selectedPath);
     this.retinaImages = Utils.valueForKeyOnDocument(Constants.RETINA_IMAGES, context, 1) === 1;
 
     this.Settings = require('sketch/settings')
@@ -629,7 +629,7 @@ class Exporter {
     let error;
     const fileManager = NSFileManager.defaultManager();
 
-    this._outputPath = selectedPath + "/" + Constants.OUTPUT_DIRECTORY;
+    this._outputPath = selectedPath + "/" + this.context.document.cloudName();
     if (!fileManager.fileExistsAtPath(this._outputPath)) {
       error = MOPointer.alloc().init();
       if (!fileManager.createDirectoryAtPath_withIntermediateDirectories_attributes_error(this._outputPath, false, null, error)) {
