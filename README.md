@@ -10,7 +10,7 @@ The Exporter was forked from [Click-Thru-Prototype](https://github.com/markhorga
 
 ## Installation
 
-To install, [download the zip file](https://github.com/MaxBazarov/exporter/blob/master/Exporter.sketchplugin.zip) and double-click on `Exporter.sketchplugin`. The commands will show up under `Plugins > Exporter`. To see it in action, open `demo.sketch` and then select `Plugins > Exporter > Export to HTML`.
+To install, [download the zip file](https://github.com/MaxBazarov/exporter/raw/master/Exporter.sketchplugin.zip) and double-click on `Exporter.sketchplugin`. The commands will show up under `Plugins > Exporter`. To see it in action, open `demo.sketch` and then select `Plugins > Exporter > Export to HTML`.
 
 ## Usage
 
