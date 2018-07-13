@@ -25,6 +25,7 @@ class Exporter {
     this.context = context;
     this.prepareOutputFolder(selectedPath);
     this.retinaImages = Utils.valueForKeyOnDocument(Constants.RETINA_IMAGES, context, 1) === 1;
+    this.jsStory = '';
 
     this.Settings = require('sketch/settings')
 
@@ -68,26 +69,36 @@ class Exporter {
     Utils.writeToFile(css, path + "/main.css");
   }
 
-  generateJSFile() {
-    //log("generateJSFile()");
+
+  createJSFile(fileName){
     const fileManager = NSFileManager.defaultManager();
     const jsPath = this._outputPath + "/" + Constants.JS_DIRECTORY;
-    const filename = "main.js";
-    const targetPath = jsPath + filename;
+    const targetPath = jsPath + fileName;
+
     let error = MOPointer.alloc().init();
     if (!fileManager.fileExistsAtPath(jsPath)) {
       if (!fileManager.createDirectoryAtPath_withIntermediateDirectories_attributes_error(jsPath, false, null, error)) {
         log(error.value().localizedDescription());
       }
     }
+
     error = MOPointer.alloc().init();
     if (fileManager.fileExistsAtPath(targetPath)) {
       if (!fileManager.removeItemAtPath_error(targetPath, error)) {
         log(error.value().localizedDescription());
       }
     }
+    return targetPath;
+  }
+
+  generateJSFile() {
+    //log("generateJSFile()");
+    const fileManager = NSFileManager.defaultManager();
+    const filename = "main.js";    
+    const targetPath = this.createJSFile(filename);
+    
     const sourcePath = this.context.plugin.url().URLByAppendingPathComponent("Contents").URLByAppendingPathComponent("Sketch").URLByAppendingPathComponent("Resources").URLByAppendingPathComponent(filename).path();
-    error = MOPointer.alloc().init();
+    let error = MOPointer.alloc().init();
     if (!fileManager.copyItemAtPath_toPath_error(sourcePath, targetPath, error)) {
       log(error.value().localizedDescription());
     }
@@ -282,7 +293,7 @@ class Exporter {
     const artboardName = targetArtboadName!=''?targetArtboadName:command.valueForKey_onLayer_forPluginIdentifier(Constants.ARTBOARD_LINK, layer, this.context.plugin.identifier());
     if (artboardName != null && artboardName != "") {
       // artboard link
-      hotspots.push({href: Utils.toFilename(artboardName) + ".html", x: x, y: y, width: width, height: height});
+      hotspots.push({artboardName:artboardName, href: Utils.toFilename(artboardName) + ".html", x: x, y: y, width: width, height: height});
     } else {
       // external link
       //let externalLink = command.valueForKey_onLayer_forPluginIdentifier(Constants.EXTERNAL_LINK, layer, this.context.plugin.identifier());
@@ -486,6 +497,82 @@ class Exporter {
     });
   }
 
+
+  generateJSStoryBegin(){
+  this.jsStory = 
+  'var story = {\n'+
+  '"pages": [\n';
+
+  }
+
+  generateJSStoryEnd(){
+    this.jsStory += 
+     '   ]\n,'+
+     '"resolutions": [2],\n'+
+     '"title": "'+this.context.document.cloudName()+'",\n'+
+     '"highlightLinks": false\n'+
+    '}\n';
+
+    const pathStoryJS = this.createJSFile('story.js');
+    Utils.writeToFile(this.jsStory, pathStoryJS);
+  }
+
+  pushArtboardSetIntoJSStory(artboardSet,index) {
+    const mainArtboard = artboardSet[0].artboard;
+    const mainName = mainArtboard.name();
+    let js = (index?',':'')+
+      '{\n'+
+      '"image": "'+ Utils.toFilename(mainName+'.png',false)+'",\n'+
+      '"image2x": "'+ Utils.toFilename(mainName+'@2x.png',false)+'",\n'+
+      '"width": '+mainArtboard.frame().width()+',\n'+
+      '"height": '+mainArtboard.frame().height()+',\n'+
+      '"title": "'+mainName+'",\n'+
+      '"links": [\n';      
+
+    artboardSet.forEach(function (artboardData) {
+      js += this.pushArtobardIntoJSStory(artboardData);
+    }, this);
+
+    js += ']}\n';
+
+    this.jsStory += js;
+  }
+
+  pushArtobardIntoJSStory(artboardData) {
+    const artboard = artboardData.artboard;
+    let resultJs = '';
+    let index = 0;
+
+    const hotspots = this.getHotspots(artboard, true, null, artboardData);
+    if (hotspots != null) {
+
+      hotspots.forEach(function (hotspot) {
+          let js = index?',':'';
+          js += 
+            '{\n'+
+            '  "rect": [\n'+
+            '    '+hotspot.x+',\n'+
+            '    '+hotspot.y+',\n'+
+            '    '+(hotspot.x+hotspot.width)+',\n'+
+            '    '+(hotspot.y+hotspot.height)+'\n'+
+            '   ],\n';
+
+            if(hotspot.artboardName!=undefined){                          
+              js += '   "page": ' + this.artboardsDict[hotspot.artboardName]+'\n';              
+            }else{
+              js += '   "url": "'+hotspot.href+'"\n';
+            }
+            js += '  }\n';
+         
+          resultJs += js;
+
+          index++;
+      }, this);
+    }
+
+    return resultJs;
+  }
+
   generateHTMLFile(artboardSet) {
     //log("generateHTMLFile()");
     const mainArtboard = artboardSet[0].artboard;
@@ -574,54 +661,47 @@ class Exporter {
 
 
   getArtboardGroups(context) {
-    log("getArtboardGroups()");
 
     const artboardGroups = [];
     this.doc.pages().forEach(function(page){
       if (1==1 || !Utils.isSymbolsPage(page)) {
         artboardGroups.push.apply(artboardGroups, getArtboardGroupsInPage(page, context, false));
       }
-    });
+    })
 
-    artboardGroups.forEach(function (artboardGroup) {
-      // set mobile menu layer
-      artboardGroup.forEach(function (artboardData) {
-        artboardData.mobileMenuLayer = this.findLayer(Constants.IS_MOBILE_MENU, artboardData.artboard);
-      }, this);
-
-      if (Utils.hasResponsiveArtboards(this.context)) {
-        // sort artboards within a set by width
-        artboardGroup.sort(function (a, b) {
-          if (a.artboard.frame().width() < b.artboard.frame().width()) {
-            return 1;
-          } else if (a.artboard.frame().width() > b.artboard.frame().width()) {
-            return -1;
-          } else {
-            return 0;
-          }
-        });
-      }
-    }, this);
     return artboardGroups;
   }
 
-  exportArtboards() {
-    //log("exportArtboards()");
-    this.artboardGroups = this.getArtboardGroups(this.context);
+  getArtboardsDict(){
+    let dict = [];
+    let index = 0;
+    this.artboardGroups.forEach(function (artboardGroup) {
+      const mainArtboard = artboardGroup[0].artboard;
+      const mainName = mainArtboard.name();
+      dict[mainName] = index++;
+    }, this);
+    return dict;
+  }
 
-    /*this.artboardGroups.forEach(function(artboardGroup){
-      artboardGroup.forEach(function (artboardData) {
-        log(`artboard: ${artboardData.artboard.name()}, baseName: ${artboardData.baseName}, suffix: ${artboardData.suffix}`);
-      });
-    });*/
+  exportArtboards() {
+    this.artboardGroups = this.getArtboardGroups(this.context);
+    this.artboardsDict = this.getArtboardsDict();
 
     this.generateCSSFile();
     this.generateJSFile();
 
+    // try to collect all hotspots into single dictionay
+    this.generateJSStoryBegin();
+    let index = 0;
+
     this.artboardGroups.forEach(function (artboardGroup) {
       this.exportImages(artboardGroup);
       this.generateHTMLFile(artboardGroup);
+      this.pushArtboardSetIntoJSStory(artboardGroup,index++);
     }, this);
+
+
+    this.generateJSStoryEnd();
   }
 
   prepareOutputFolder(selectedPath) {
