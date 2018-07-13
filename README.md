@@ -2,7 +2,7 @@
 
 A Sketch plugin that exports Sketch artboards into linked HTML files. 
 
-The Expoerter was forked from Click-Thru-Prototype plugin (https://github.com/markhorgan/click-thru-prototype), but got several improvements and changes:
+The Exporter was forked from [Click-Thru-Prototype](https://github.com/markhorgan/click-thru-prototype) plugin, but got several improvements and changes:
 - Support for Sketch-native links
 - Support for cross-page links
 - Support for links inside Symbols
@@ -10,7 +10,7 @@ The Expoerter was forked from Click-Thru-Prototype plugin (https://github.com/ma
 
 ## Installation
 
-To install, [download the zip file](https://github.com/MaxBazarov/exporter/raw/master/Exporter.sketchplugin.zip) and double-click on `Exporter.sketchplugin`. The commands will show up under `Plugins > Exporter`. To see it in action, open `demo.sketch` and then select `Plugins > Exporter > Export to HTML`.
+To install, [download the zip file](https://github.com/MaxBazarov/exporter/blob/master/Exporter.sketchplugin.zip) and double-click on `Exporter.sketchplugin`. The commands will show up under `Plugins > Exporter`. To see it in action, open `demo.sketch` and then select `Plugins > Exporter > Export to HTML`.
 
 ## Usage
 
