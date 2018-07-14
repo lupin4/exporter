@@ -31,53 +31,15 @@ class Exporter {
 
   }
 
-  hasMobileMenu() {
-    //log("hasMobileMenu()");
-    return this.artboardGroups.some(function (artboardGroup) {
-      return artboardGroup.some(function (artboardData) {
-        return artboardData.mobileMenuLayer != null;
-      });
-    });
-  }
 
-  generateCSSFile() {
-    //log("generateCSSFile()");
+  prepareFilePath(filePath,fileName)
+  {
     const fileManager = NSFileManager.defaultManager();
-    const path = this._outputPath + "/" + Constants.CSS_DIRECTORY;
-    if (!fileManager.fileExistsAtPath(path)) {
-      fileManager.createDirectoryAtPath_withIntermediateDirectories_attributes_error(path, false, null, null);
-    }
-
-    let css = 'body { margin: 0 }\n' +
-        '.artboard-container { position: relative; margin: 0 auto; display: none }\n' +
-        '.artboard-image { position: relative; z-index: 0; }\n' +
-        '.hotspot { position: absolute; z-index: 1; display: block; padding: ' + Constants.HOTSPOT_PADDING + 'px; }\n' +
-        '.hotspot.is-visible { border: 1px dotted #ccc; background-color: rgba(0, 0, 0, 0.1); animation: fadeOut 2.5s forwards }\n' +
-        '@keyframes fadeOut {\n' +
-        Utils.tab(1) + '0% { opacity: 0 }\n' +
-        Utils.tab(1) + '45% { opacity: 1 }\n' +
-        Utils.tab(1) + '55% { opacity: 1 }\n' +
-        Utils.tab(1) + '100% { opacity: 0 }\n' +
-        '}\n';
-
-    if (this.hasMobileMenu()) {
-      css += '.mobile-menu-container { position: absolute; z-index: 2; display: none }\n' +
-          '.mobile-menu-image { position: position; z-index: 0; }\n' +
-          '.mobile-menu-container .hotspot { z-index: 3 }\n';
-    }
-
-    Utils.writeToFile(css, path + "/main.css");
-  }
-
-
-  createJSFile(fileName){
-    const fileManager = NSFileManager.defaultManager();
-    const jsPath = this._outputPath + "/" + Constants.JS_DIRECTORY;
-    const targetPath = jsPath + fileName;
+    const targetPath = filePath + '/'+fileName;
 
     let error = MOPointer.alloc().init();
-    if (!fileManager.fileExistsAtPath(jsPath)) {
-      if (!fileManager.createDirectoryAtPath_withIntermediateDirectories_attributes_error(jsPath, false, null, error)) {
+    if (!fileManager.fileExistsAtPath(filePath)) {
+      if (!fileManager.createDirectoryAtPath_withIntermediateDirectories_attributes_error(filePath, false, null, error)) {
         log(error.value().localizedDescription());
       }
     }
@@ -91,18 +53,19 @@ class Exporter {
     return targetPath;
   }
 
-  generateJSFile() {
-    //log("generateJSFile()");
+
+  copyResources() {    
     const fileManager = NSFileManager.defaultManager();
-    const filename = "main.js";    
-    const targetPath = this.createJSFile(filename);
+    const resFolder = "resources";    
+    const targetPath = this.prepareFilePath(this._outputPath,resFolder);
     
-    const sourcePath = this.context.plugin.url().URLByAppendingPathComponent("Contents").URLByAppendingPathComponent("Sketch").URLByAppendingPathComponent("Resources").URLByAppendingPathComponent(filename).path();
+    const sourcePath = this.context.plugin.url().URLByAppendingPathComponent("Contents").URLByAppendingPathComponent("Sketch").URLByAppendingPathComponent("Resources").path();
     let error = MOPointer.alloc().init();
     if (!fileManager.copyItemAtPath_toPath_error(sourcePath, targetPath, error)) {
       log(error.value().localizedDescription());
     }
   }
+
 
   getAbsoluteRect(layer, parentAbsoluteRect, indent) {
     //log("getAbsoluteRect()");
@@ -321,12 +284,7 @@ class Exporter {
             height: height
           });
         } else {
-          const isMobileMenuButton = command.valueForKey_onLayer_forPluginIdentifier(Constants.IS_MOBILE_MENU_BUTTON, layer, this.context.plugin.identifier());
-          if (isMobileMenuButton) {
-            // mobile menu button
-            const idName = this.getCSSName(artboardData, "mobile-menu-container");
-            hotspots.push({href: "javascript:toggle('" + idName + "')", x: x, y: y, width: width, height: height});
-          }
+          
         }
       }
     }
@@ -358,94 +316,6 @@ class Exporter {
     return html;
   }
 
-  buildEmbeddedCSS(artboardSet) {
-    //log("buildEmbeddedCSS()");
-    let html = '<style>\n';
-
-    artboardSet.forEach(function (artboardData, index) {
-      // artboard container
-      html += '#' + this.getCSSName(artboardData, "artboard-container") + ' { width: ' + artboardData.artboard.frame().width() + 'px';
-      if (index == 0) {
-        html += '; display: block';
-      }
-      html += ' }\n';
-
-      if (artboardData.mobileMenuLayer != null) {
-        // mobile menu
-        // container
-        const mobileMenuLayer = artboardData.mobileMenuLayer;
-        const left = mobileMenuLayer.absoluteRect().rulerX() + (Math.floor((mobileMenuLayer.frame().width() - mobileMenuLayer.absoluteInfluenceRect().size.width) / 2));
-        const top = mobileMenuLayer.absoluteRect().rulerY() + (Math.floor((mobileMenuLayer.frame().height() - mobileMenuLayer.absoluteInfluenceRect().size.height) / 2));
-        html += '#' + this.getCSSName(artboardData, "mobile-menu-container") + ' { left:' + left + 'px; top:' + top + 'px }\n';
-        // image
-        const width = mobileMenuLayer.absoluteInfluenceRect().size.width;
-        const height = mobileMenuLayer.absoluteInfluenceRect().size.height;
-        html += '#' + this.getCSSName(artboardData, "mobile-menu-image") + ' { width: ' + width + 'px; height: ' + height + 'px; background: url("' + Constants.IMAGES_DIRECTORY + this.getMobileMenuImageName(artboardData.artboard, 1) + '") no-repeat; }\n';
-      }
-
-      // artboard image
-      const width = artboardData.artboard.frame().width();
-      const height = artboardData.artboard.frame().height();
-      html += '#' + this.getCSSName(artboardData, "artboard-image") + ' { width: ' + width + 'px; height: ' + height + 'px; background: url("' + Constants.IMAGES_DIRECTORY + this.getArtboardImageName(artboardData.artboard, 1) + '") no-repeat; }\n';
-
-      // background color
-      if (index == 0) {
-        if (artboardData.artboard.hasBackgroundColor()) {
-          const backgroundColor = Utils.colorToHex(artboardData.artboard.backgroundColor());
-          html += 'body { background-color: ' + backgroundColor + ' }\n';
-        }
-      }
-    }, this);
-
-    // retina media query
-    if (this.retinaImages) {
-      html += '@media (-webkit-min-device-pixel-ratio: 2), (min--moz-device-pixel-ratio: 2), (-o-min-device-pixel-ratio: 2/1), (min-resolution: 192dpi), (min-resolution: 2dppx) {\n';
-      artboardSet.forEach(function (artboardData) {
-        if (artboardData.mobileMenuLayer != null) {
-          // mobile menu image
-          const mobileMenuLayer = artboardData.mobileMenuLayer;
-          const width = mobileMenuLayer.absoluteInfluenceRect().size.width;
-          const height = mobileMenuLayer.absoluteInfluenceRect().size.height;
-          html += Utils.tab(1) + '#' + this.getCSSName(artboardData, "mobile-menu-image") + ' { background-image: url("' + Constants.IMAGES_DIRECTORY + this.getMobileMenuImageName(artboardData.artboard, 2) + '"); background-size: ' + width + 'px ' + height + 'px; }\n';
-        }
-
-        // artboard image
-        const width = artboardData.artboard.frame().width();
-        const height = artboardData.artboard.frame().height();
-        html += Utils.tab(1) + '#' + this.getCSSName(artboardData, "artboard-image") + ' { background-image: url("' + Constants.IMAGES_DIRECTORY + this.getArtboardImageName(artboardData.artboard, 2) + '"); background-size: ' + width + 'px ' + height + 'px; }\n';
-      }, this);
-      html += '}\n';
-    }
-
-    // responsive media queries
-    artboardSet.forEach(function (artboardData, index) {
-      if (index > 0) {
-        const previousArtboardData = artboardSet[index - 1];
-        html += '@media screen and (max-width: ' + (previousArtboardData.artboard.frame().width() - 1) + 'px) {\n';
-        // hide other artboards
-        html += '  ';
-        artboardSet.forEach(function (otherArtboardData, i) {
-          if (otherArtboardData != artboardData) {
-            if (i > 0) {
-              html += ', ';
-            }
-            html += '#' + this.getCSSName(otherArtboardData, "artboard-container");
-          }
-        }, this);
-        html += ' { display: none }\n';
-        // show artboard
-        html += '  #' + this.getCSSName(artboardData, "artboard-container") + ' { display: block }\n';
-        if (artboardData.artboard.hasBackgroundColor()) {
-          const backgroundColor = Utils.colorToHex(artboardData.artboard.backgroundColor());
-          html += '  body { background-color: ' + backgroundColor + ' }\n';
-        }
-        html += '}\n';
-      }
-    }, this);
-
-    html += '</style>\n';
-    return html;
-  }
 
   getArtboardImageName(artboard, scale) {
     //log("getArtboardImageName()");
@@ -453,56 +323,17 @@ class Exporter {
     return Utils.toFilename(artboard.name(), false) + suffix + ".png";
   }
 
-  getMobileMenuImageName(artboard, scale) {
-    //log("getMobileMenuImageName()");
-    const suffix = scale == 2 ? "@2x" : "";
-    return Utils.toFilename(artboard.name(), false) + "_mobile_menu" + suffix + ".png";
-  }
-
-  getCSSName(artboardData, suffix) {
-    //log("getMobileMenuImageName()");
-    return artboardData.suffix != null ? artboardData.suffix + "-" + suffix : "main-" + suffix;
-  }
-
-  // nestedHTML: optional
-  buildArtboardHTML(artboardData, nestedHTML) {
-    //log("buildArtboardHTML()");
-    const artboard = artboardData.artboard;
-    let html = Utils.tab(1) + '<div id="' + this.getCSSName(artboardData, "artboard-container") + '" class="artboard-container">\n' +
-        Utils.tab(2) + '<div id="' + this.getCSSName(artboardData, "artboard-image") + '" class="artboard-image"></div>\n' +
-        this.buildHotspots(artboard, artboardData, 2);
-    if (nestedHTML != null) {
-      html += nestedHTML;
-    }
-    html += Utils.tab(1) + '</div>\n';
-    return html;
-  }
-
-  buildMobileMenuHTML(artboardData, indent) {
-    //log("buildMobileMenuHTML()");
-    const mobileMenuLayer = artboardData.mobileMenuLayer;
-    if (mobileMenuLayer == null) {
-      return null;
-    }
-    return Utils.tab(indent) + '<div id="' + this.getCSSName(artboardData, "mobile-menu-container") + '" class="mobile-menu-container">\n' +
-        Utils.tab(indent + 1) + '<div id="' + this.getCSSName(artboardData, "mobile-menu-image") + '" class="mobile-menu-image"></div>\n' +
-        this.buildHotspots(mobileMenuLayer, artboardData, indent + 1) +
-        Utils.tab(indent) + '</div>\n';
-  }
-
-  hasMobileMenuLayer(artboardSet) {
-    //log("hasMobileMenuLayer()");
-    return artboardSet.some(function (artboardData) {
-      return artboardData.mobileMenuLayer != null;
-    });
-  }
-
 
   generateJSStoryBegin(){
-  this.jsStory = 
-  'var story = {\n'+
-  '"pages": [\n';
+    this.jsStory = 
+    'var story = {\n'+
+    '"pages": [\n';
+  }
 
+
+  createJSStoryFile(){
+    const fileName = 'story.js';
+    return this.prepareFilePath(this._outputPath + "/" + Constants.RESOURCES_DIRECTORY,fileName);
   }
 
   generateJSStoryEnd(){
@@ -513,9 +344,49 @@ class Exporter {
      '"highlightLinks": false\n'+
     '}\n';
 
-    const pathStoryJS = this.createJSFile('story.js');
+    const pathStoryJS = this.createJSStoryFile();
     Utils.writeToFile(this.jsStory, pathStoryJS);
   }
+
+  createMainHTML(){
+    const docName = this.context.document.cloudName();
+
+    let s = "";
+    s += '<!DOCTYPE html>\n<html>\n<head>\n<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">\n';
+    s += '<meta name="generator" content="Generated using Exporter Skerch Plugin - https://github.com/MaxBazarov/exporter">\n';
+    s += '<title>'+docName+'</title>\n';
+    s += '<link rel="stylesheet" type="text/css" href="resources/viewer.css">\n';
+    s += '<script type="text/javascript" src="resources/jquery-1.12.4.min.js" charset="UTF-8"></script>\n';
+    s += '<script type="text/javascript" src="resources/jquery-migrate-1.4.1.min.js" charset="UTF-8"></script>\n';
+    s += '<script type="text/javascript" src="resources/jquery.maphilight.min.js" charset="UTF-8"></script>\n';
+    s += '<script type="text/javascript" src="resources/jquery.hotkeys.min.js" charset="UTF-8"></script>\n';
+    s += '<script type="text/javascript" src="resources/jquery.ba-hashchange.min.js" charset="UTF-8"></script>\n';
+    s += '<script type="text/javascript" src="resources/story.js" charset="UTF-8"></script>\n';
+    s += '<script type="text/javascript" src="resources/viewer.js" charset="UTF-8"></script>\n';
+
+    s += '<script type="text/javascript">\n';
+    s += '  var viewer = createViewer(story, "images");\n';
+    s += '</script>\n';
+    s += '</head>\n';
+    s += '<body class="screen">\n';
+    s += ' <div id="container">\n';
+    s += '  <div id="content"></div>\n';
+    s += ' </div>\n';
+    s += ' <div id="nav"><ul id="nav-left">\n';
+    s += '  <li id="nav-left-prev"><a href="javascript:viewer.previous()" title="Previous"><span>Prev</span></a></li>\n';
+    s += '  <li id="nav-left-next"><a href="javascript:viewer.next()" title="Next"><span>Next</span></a></li>\n';
+    s += '    </ul><ul id="nav-right">\n';
+    s += '   <li id="nav-right-links"><a href="javascript:viewer.toggleLinks()" title="Toggle Links"><span>Links</span></a></li>\n';
+    s += '   <li id="nav-right-hide"><a href="javascript:viewer.hideNavbar()" title="Hide Navigation Bar"><span>Hide</span></a></li>\n';
+    s += '    </ul><h1>Title</h1></div>\n';
+    s += '<div id="nav-hide" class="hidden"><a href="javascript:viewer.showNavbar()" title="Show Navigation Bar"><span>Navbar</span></a></div>\n';
+    s += '</body>\n';
+    s += '</html>\n';
+
+    const filePath = this.prepareFilePath(this._outputPath,'index.html');
+    Utils.writeToFile(s, filePath);
+  }
+
 
   pushArtboardSetIntoJSStory(artboardSet,index) {
     const mainArtboard = artboardSet[0].artboard;
@@ -573,49 +444,6 @@ class Exporter {
     return resultJs;
   }
 
-  generateHTMLFile(artboardSet) {
-    //log("generateHTMLFile()");
-    const mainArtboard = artboardSet[0].artboard;
-    let html = '<!DOCTYPE html>\n<html>\n<head>\n' +
-        '<title>' + mainArtboard.name() + '</title>\n' +
-        '<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0" />\n' +
-        '<link href="css/main.css" rel="stylesheet" type="text/css"/>\n';
-    html += this.buildEmbeddedCSS(artboardSet) +
-        '<script src="js/main.js" type="text/javascript"></script>\n' +
-        '</head>\n<body>\n<main>\n';
-    artboardSet.forEach(function (artboardData) {
-      let mobileMenuHTML = null;
-      if (artboardData.mobileMenuLayer != null) {
-        mobileMenuHTML = this.buildMobileMenuHTML(artboardData, 2);
-      }
-      html += this.buildArtboardHTML(artboardData, mobileMenuHTML);
-    }, this);
-    html += '</main>\n</body>\n</html>\n';
-
-    const filename = Utils.toFilename(artboardSet[0].baseName) + ".html";
-    const filePath = this._outputPath + "/" + filename;
-    Utils.writeToFile(html, filePath);
-  }
-
-  findLayer(key, layer) {
-    //log("findLayer()");
-    const isMobileMenu = !!(this.context.command.valueForKey_onLayer_forPluginIdentifier(key, layer, this.context.plugin.identifier()));
-    if (isMobileMenu) {
-      return layer;
-    }
-
-    let targetLayer = null;
-    if (layer.isKindOfClass(MSLayerGroup)) {
-      layer.layers().some(function (childLayer) {
-        targetLayer = this.findLayer(key, childLayer);
-        if (targetLayer != null) {
-          return true;
-        }
-      }, this);
-    }
-
-    return targetLayer;
-  }
 
   exportImage(layer, scale, imagePath) {
     //log("exportImage()");
@@ -644,17 +472,7 @@ class Exporter {
       if (this.retinaImages) {
         this.exportImage(artboardData.artboard, 2, this._imagesPath + this.getArtboardImageName(artboardData.artboard, 2));
       }
-
-      if (mobileMenuLayer != null) {
-        mobileMenuLayer.setIsVisible(true);
-        this.exportImage(mobileMenuLayer, 1, this._imagesPath + this.getMobileMenuImageName(artboardData.artboard, 1));
-        if (this.retinaImages) {
-          this.exportImage(mobileMenuLayer, 2, this._imagesPath + this.getMobileMenuImageName(artboardData.artboard, 2));
-        }
-        if (!mobileMenuLayerIsVisible) {
-          mobileMenuLayer.setIsVisible(false);
-        }
-      }
+    
     }, this);
   }
 
@@ -687,8 +505,8 @@ class Exporter {
     this.artboardGroups = this.getArtboardGroups(this.context);
     this.artboardsDict = this.getArtboardsDict();
 
-    this.generateCSSFile();
-    this.generateJSFile();
+    this.copyResources();
+    this.createMainHTML();
 
     // try to collect all hotspots into single dictionay
     this.generateJSStoryBegin();
@@ -696,7 +514,6 @@ class Exporter {
 
     this.artboardGroups.forEach(function (artboardGroup) {
       this.exportImages(artboardGroup);
-      this.generateHTMLFile(artboardGroup);
       this.pushArtboardSetIntoJSStory(artboardGroup,index++);
     }, this);
 
