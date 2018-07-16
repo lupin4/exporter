@@ -6,7 +6,7 @@
         <description>Generates a HTML clickable prototype</description>
         <language>en</language>
         <item>
-            <title>Version 1.1.1</title>
+            <title>Version 1.1.2</title>
             <description>
                 <![CDATA[
                    <ul>
@@ -14,7 +14,7 @@
                    </ul>
                 ]]>
             </description>
-            <enclosure url="https://github.com/MaxBazarov/exporter/raw/master/Exporter.sketchplugin.zip" sparkle:version="1.1.1"/>
+            <enclosure url="https://github.com/MaxBazarov/exporter/raw/master/Exporter.sketchplugin.zip" sparkle:version="1.1.2"/>
         </item>
     </channel>
 </rss>
