@@ -47,7 +47,8 @@ function createViewer(story, files) {
 					} else if(link.url != null){
 						title = link.url;
 						href = link.url;
-						target = '_blank';
+						//target = '_blank';
+						target = null;
 					}
 					
 					$('<area/>', {
