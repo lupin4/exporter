@@ -238,54 +238,32 @@ class Exporter {
     const width = Math.round(absoluteRect.size.width);
     const height = Math.round(absoluteRect.size.height);
 
-    let targetArtboadName = '';
-    //log("---------------");
-    //log(layer.name());    
-    //log(layer.parentArtboard().name());
-    if(layer.flow()!=null){
-      //log("has a flow");      
-      const target = layer.flow().destinationArtboard();
-      if(target!=null){
-        targetArtboadName = target.name();
-      }else{        
-        //log(layer.flow());
-      }
-      //log(targetArtboadName);
-    }
 
-    const artboardName = targetArtboadName!=''?targetArtboadName:command.valueForKey_onLayer_forPluginIdentifier(Constants.ARTBOARD_LINK, layer, this.context.plugin.identifier());
-    if (artboardName != null && artboardName != "") {
-      // artboard link
-      hotspots.push({artboardName:artboardName, href: Utils.toFilename(artboardName) + ".html", x: x, y: y, width: width, height: height});
-    } else {
-      // external link
-      //let externalLink = command.valueForKey_onLayer_forPluginIdentifier(Constants.EXTERNAL_LINK, layer, this.context.plugin.identifier());
-      let externalLink = this.Settings.layerSettingForKey(layer,Constants.EXTERNAL_LINK)
-
-      if (externalLink != null && externalLink != "") {
+    // check external link      
+    let externalLink = this.Settings.layerSettingForKey(layer,Constants.EXTERNAL_LINK);
+    if (externalLink != null && externalLink != "") {
+        // found external link
         const openLinkInNewWindow = command.valueForKey_onLayer_forPluginIdentifier(Constants.OPEN_LINK_IN_NEW_WINDOW, layer, this.context.plugin.identifier());
         const regExp = new RegExp("^http(s?)://");
         if (!regExp.test(externalLink.toLowerCase())) {
           externalLink = "http://" + externalLink;
         }
-        const target = openLinkInNewWindow ? "_blank" : null;
-        hotspots.push({href: externalLink, target: target, x: x, y: y, width: width, height: height});
-      } else {
-        const dialogType = command.valueForKey_onLayer_forPluginIdentifier(Constants.DIALOG_TYPE, layer, this.context.plugin.identifier());
-        if (dialogType != null) {
-          // JavaScript dialog
-          let dialogText = command.valueForKey_onLayer_forPluginIdentifier(Constants.DIALOG_TEXT, layer, this.context.plugin.identifier());
-          dialogText = dialogText.replace(new RegExp("'", "g"), "\\'").replace(new RegExp('"', "g"), "");
-          hotspots.push({
-            href: "javascript:" + dialogType + "('" + dialogText + "')",
-            x: x,
-            y: y,
-            width: width,
-            height: height
-          });
-        } else {
-          
+        const target = openLinkInNewWindow && 1==2 ? "_blank" : null;
+        hotspots.push({href: externalLink, target: target, x: x, y: y, width: width, height: height});       
+    }else{
+      // check link to artboard
+      let targetArtboadName = '';
+      if(layer.flow()!=null){
+        const target = layer.flow().destinationArtboard();
+        if(target!=null){
+          targetArtboadName = target.name();
         }
+      }
+
+      const artboardName = targetArtboadName!=''?targetArtboadName:command.valueForKey_onLayer_forPluginIdentifier(Constants.ARTBOARD_LINK, layer, this.context.plugin.identifier());
+      if (artboardName != null && artboardName != "") {
+        // found artboard link
+        hotspots.push({artboardName:artboardName, href: Utils.toFilename(artboardName) + ".html", x: x, y: y, width: width, height: height});     
       }
     }
     return hotspots;
@@ -430,9 +408,13 @@ class Exporter {
 
             if(hotspot.artboardName!=undefined){                          
               js += '   "page": ' + this.artboardsDict[hotspot.artboardName]+'\n';              
-            }else{
-              js += '   "url": "'+hotspot.href+'"\n';
+            }else{              
+              if(hotspot.target!=undefined){   
+               js += '   "target": "'+hotspot.target+'",\n';
+              }
+              js += '   "url": "'+hotspot.href+'"\n';                    
             }
+                  
             js += '  }\n';
          
           resultJs += js;
@@ -486,6 +468,21 @@ class Exporter {
         artboardGroups.push.apply(artboardGroups, getArtboardGroupsInPage(page, context, false));
       }
     })
+
+
+    // try to find flowStartPoint and move it on top  
+    for (var i = 0; i < artboardGroups.length; i++) {
+      const a = artboardGroups[i][0].artboard;
+      if( a.isFlowHome() ){
+         if(i!=0){              
+              // move found artgroup to the top
+              const item1 = artboardGroups[i];
+              artboardGroups.splice(i,1);
+              artboardGroups.splice(0,0,item1);
+          }
+          break;
+      }
+    }
 
     return artboardGroups;
   }
