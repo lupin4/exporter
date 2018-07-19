@@ -123,7 +123,7 @@ function createViewer(story, files) {
 		refresh: function() {
 			var page = story.pages[this.currentPage];
 			
-			$('#nav h1').html(page.title);
+			$('#nav .title').html(page.title);
 			$('#nav-left-prev').toggleClass('disabled', !this.hasPrevious());
 			$('#nav-left-next').toggleClass('disabled', !this.hasNext());
 			$('#nav-right-links').toggleClass('active', this.highlightLinks);

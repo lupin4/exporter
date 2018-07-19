@@ -333,6 +333,7 @@ class Exporter {
     s += '<!DOCTYPE html>\n<html>\n<head>\n<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">\n';
     s += '<meta name="generator" content="Generated using Exporter Skerch Plugin - https://github.com/MaxBazarov/exporter">\n';
     s += '<title>'+docName+'</title>\n';
+    s += '<link rel="stylesheet" type="text/css" href="resources/fa/css/all.min.css"/>\n';
     s += '<link rel="stylesheet" type="text/css" href="resources/viewer.css">\n';
     s += '<script type="text/javascript" src="resources/jquery-1.12.4.min.js" charset="UTF-8"></script>\n';
     s += '<script type="text/javascript" src="resources/jquery-migrate-1.4.1.min.js" charset="UTF-8"></script>\n';
@@ -350,14 +351,37 @@ class Exporter {
     s += ' <div id="container">\n';
     s += '  <div id="content"></div>\n';
     s += ' </div>\n';
-    s += ' <div id="nav"><ul id="nav-left">\n';
-    s += '  <li id="nav-left-prev"><a href="javascript:viewer.previous()" title="Previous"><span>Prev</span></a></li>\n';
-    s += '  <li id="nav-left-next"><a href="javascript:viewer.next()" title="Next"><span>Next</span></a></li>\n';
-    s += '    </ul><ul id="nav-right">\n';
-    s += '   <li id="nav-right-links"><a href="javascript:viewer.toggleLinks()" title="Toggle Links"><span>Links</span></a></li>\n';
-    s += '   <li id="nav-right-hide"><a href="javascript:viewer.hideNavbar()" title="Hide Navigation Bar"><span>Hide</span></a></li>\n';
-    s += '    </ul><h1>Title</h1></div>\n';
-    s += '<div id="nav-hide" class="hidden"><a href="javascript:viewer.showNavbar()" title="Show Navigation Bar"><span>Navbar</span></a></div>\n';
+    
+
+
+    s += ' <div id="nav">\n';
+    s += '     <ul id="nav-right-hide" class="nav-set">\n';
+    s += '         <li class="nav-item-icon">\n';
+    s += '             <a href="javascript:viewer.hideNavbar()" title="Hide controls"><i class="far fa-times"></i></a>\n';
+    s += '         </li>\n';
+    s += '     </ul>\n';
+    s += '     <ul id="nav-left" class="nav-set">\n';
+    s += '         <li id="nav-left-prev" class="nav-item-icon">\n';
+    s += '             <a href="javascript:viewer.previous()" title="Category - Product Updated"><i class="far fa-angle-left"></i></a>\n';
+    s += '         </li>\n';
+    s += '         <li id="nav-left-next" class="nav-item-icon">\n';
+    s += '             <a href="javascript:viewer.next()" title="Category - Product Actions"><i class="far fa-angle-right"></i></a>\n';
+    s += '         </li>\n';
+    s += '         <li id="nav-right-links" class="nav-item-icon">\n';
+    s += '             <a href="javascript:viewer.toggleLinks()" title="Toggle Links"><i class="far fa-hand-pointer"></i></a>\n';
+    s += '         </li>\n';
+    s += '     </ul>\n';
+    s += '     <ul id="nav-title">\n';
+    s += '         <li class="title">Title</li>\n';
+    s += '     </ul>\n';
+    s += ' </div>\n';
+    s += ' <div id="nav-hide" class="hidden">\n';
+    s += '     <ul class="nav-set">\n';
+    s += '         <li class="nav-item-icon">\n';
+    s += '             <a href="javascript:viewer.showNavbar()" title="Show controls"><i class="far fa-bars"></i></a>\n';
+    s += '         </li>\n';
+    s += '     </ul>\n';
+    s += ' </div>\n';
     s += '</body>\n';
     s += '</html>\n';
 
