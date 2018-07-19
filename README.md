@@ -9,11 +9,6 @@ Features:
 - Single HTML file with links highlighting
 - Support for external links
 
-TODO:
-- Ability to open external links in new window
-- Tool to remove external links from all selected objects
-- Higlight external links inside Sketch
-
 
 ## Installation
 
@@ -26,3 +21,10 @@ You can user Sketch-native links or add external links. When you're finished add
 ### Retina Images
  
 By default it will show 2x images for high pixel density screens. To turn this off uncheck `Export retina images` in Settings and re-export the page.
+
+## TODO
+- Support for customized linkes (now Exporter ingors such links)
+- Disable hidden (by other top layers) hotspots during export
+- Ability to open external links in new window
+- Tool to remove external links from all selected objects
+- Higlight external links inside Sketch
