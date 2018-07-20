@@ -188,12 +188,13 @@ function createViewer(story, files) {
 		},
 		hideNavbar : function() {
 			$('#nav').slideToggle('fast', function() {
-				$('#nav-hide').removeClass('hidden');
+				$('#nav-hide').slideToggle('fast').removeClass('hidden');
 			});
 		},
 		showNavbar : function() {
-			$('#nav-hide').addClass('hidden');
-			$('#nav').slideToggle('fast');
+			$('#nav-hide').slideToggle('fast', function() {
+				$('#nav').slideToggle('fast');
+			}).addClass('hidden');
 		}
 	};
 }
