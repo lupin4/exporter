@@ -357,15 +357,15 @@ class Exporter {
     s += ' <div id="nav">\n';
     s += '     <ul id="nav-right-hide" class="nav-set">\n';
     s += '         <li class="nav-item-icon">\n';
-    s += '             <a href="javascript:viewer.hideNavbar()" title="Hide controls"><i class="far fa-times"></i></a>\n';
+    s += '             <a href="javascript:viewer.hideNavbar()" title="Hide controls"><i class="fas fa-times"></i></a>\n';
     s += '         </li>\n';
     s += '     </ul>\n';
     s += '     <ul id="nav-left" class="nav-set">\n';
     s += '         <li id="nav-left-prev" class="nav-item-icon">\n';
-    s += '             <a href="javascript:viewer.previous()" title="Category - Product Updated"><i class="far fa-angle-left"></i></a>\n';
+    s += '             <a href="javascript:viewer.previous()" title="Category - Product Updated"><i class="fas fa-angle-left"></i></a>\n';
     s += '         </li>\n';
     s += '         <li id="nav-left-next" class="nav-item-icon">\n';
-    s += '             <a href="javascript:viewer.next()" title="Category - Product Actions"><i class="far fa-angle-right"></i></a>\n';
+    s += '             <a href="javascript:viewer.next()" title="Category - Product Actions"><i class="fas fa-angle-right"></i></a>\n';
     s += '         </li>\n';
     s += '         <li id="nav-right-links" class="nav-item-icon">\n';
     s += '             <a href="javascript:viewer.toggleLinks()" title="Toggle Links"><i class="far fa-hand-pointer"></i></a>\n';
@@ -378,7 +378,7 @@ class Exporter {
     s += ' <div id="nav-hide" class="hidden">\n';
     s += '     <ul class="nav-set">\n';
     s += '         <li class="nav-item-icon">\n';
-    s += '             <a href="javascript:viewer.showNavbar()" title="Show controls"><i class="far fa-bars"></i></a>\n';
+    s += '             <a href="javascript:viewer.showNavbar()" title="Show controls"><i class="fas fa-bars"></i></a>\n';
     s += '         </li>\n';
     s += '     </ul>\n';
     s += ' </div>\n';
