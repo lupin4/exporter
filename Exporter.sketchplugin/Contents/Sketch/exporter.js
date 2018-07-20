@@ -362,13 +362,13 @@ class Exporter {
     s += '     </ul>\n';
     s += '     <ul id="nav-left" class="nav-set">\n';
     s += '         <li id="nav-left-prev" class="nav-item-icon">\n';
-    s += '             <a onclick="viewer.previous(); return false;" href="" title="Category - Product Updated"><i class="fas fa-angle-left"></i></a>\n';
+    s += '             <a onclick="viewer.previous(); return false;" href="" title="View previous screen (or →)"><i class="fas fa-angle-left"></i></a>\n';
     s += '         </li>\n';
     s += '         <li id="nav-left-next" class="nav-item-icon">\n';
-    s += '             <a onclick="viewer.next(); return false;" href="" title="Category - Product Actions"><i class="fas fa-angle-right"></i></a>\n';
+    s += '             <a onclick="viewer.next(); return false;" href="" title="View next screen (or ←)"><i class="fas fa-angle-right"></i></a>\n';
     s += '         </li>\n';
     s += '         <li id="nav-right-links" class="nav-item-icon">\n';
-    s += '             <a onclick="viewer.toggleLinks(); return false;" href="" title="Toggle Links"><i class="far fa-hand-pointer"></i></a>\n';
+    s += '             <a onclick="viewer.toggleLinks(); return false;" href="" title="Toggle links (or SHIFT to toggle)"><i class="far fa-hand-pointer"></i></a>\n';
     s += '         </li>\n';
     s += '     </ul>\n';
     s += '     <ul id="nav-title">\n';
