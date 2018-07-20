@@ -43,13 +43,21 @@ a, a:focus {
 	height: calc(4*var(--cell));
 }
 
-#nav .title {
+#nav #nav-title  {
+	padding: calc(var(--cell)/2) var(--cell);
 	font-weight: 300;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	line-height: calc(3*var(--cell));
-	padding: calc(var(--cell)/2) var(--cell);
+}
+
+#nav #nav-title .nav-title-label {
+	font-size: 10px;
+	line-height: var(--cell);
+	color: rgba(0,0,0,0.5);
+}
+#nav #nav-title .title {
+	line-height: calc(2*var(--cell));
 }
 
 #nav ul,

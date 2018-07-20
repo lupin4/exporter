@@ -372,7 +372,7 @@ class Exporter {
     s += '         </li>\n';
     s += '     </ul>\n';
     s += '     <ul id="nav-title">\n';
-    s += '         <li class="title">Title</li>\n';
+    s += '         <li><div class="nav-title-label">Screen title</div><div class="title">Title</div></li>\n';
     s += '     </ul>\n';
     s += ' </div>\n';
     s += ' <div id="nav-hide" class="hidden">\n';
