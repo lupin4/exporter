@@ -393,7 +393,9 @@ class Exporter {
   pushArtboardSetIntoJSStory(artboardSet,index) {
     const mainArtboard = artboardSet[0].artboard;
     const mainName = mainArtboard.name();
-    let js = (index?',':'')+
+    //log("process main artboard "+mainName);
+    let js = index?',':'';
+    js +=
       '{\n'+
       '"image": "'+ Utils.toFilename(mainName+'.png',false)+'",\n'+
       '"image2x": "'+ Utils.toFilename(mainName+'@2x.png',false)+'",\n'+
@@ -402,8 +404,23 @@ class Exporter {
       '"title": "'+mainName+'",\n'+
       '"links": [\n';      
 
-    artboardSet.forEach(function (artboardData) {
-      js += this.pushArtobardIntoJSStory(artboardData);
+
+    // build flat link array
+    const hotspots = [];
+    artboardSet.forEach(function (artboardData) {   
+      const artboard = artboardData.artboard;
+      const artboardHotspots = this.getHotspots(artboard, true, null, artboardData);
+      if (artboardHotspots != null) {   
+        hotspots.push.apply(hotspots, artboardHotspots);
+      }
+    },this);
+
+    let hotspotIndex = 0;  
+    hotspots.forEach(function (hotspot) {
+      const spotJs = this.pushHotspotIntoJSStory(hotspot);
+      if(spotJs=='') return;
+      js += hotspotIndex++?',':'';
+      js += spotJs;
     }, this);
 
     js += ']}\n';
@@ -411,43 +428,33 @@ class Exporter {
     this.jsStory += js;
   }
 
-  pushArtobardIntoJSStory(artboardData) {
-    const artboard = artboardData.artboard;
-    let resultJs = '';
-    let index = 0;
+  pushHotspotIntoJSStory(hotspot) {
+    let js = 
+      '{\n'+
+      '  "rect": [\n'+
+      '    '+hotspot.x+',\n'+
+      '    '+hotspot.y+',\n'+
+      '    '+(hotspot.x+hotspot.width)+',\n'+
+      '    '+(hotspot.y+hotspot.height)+'\n'+
+      '   ],\n';
 
-    const hotspots = this.getHotspots(artboard, true, null, artboardData);
-    if (hotspots != null) {
-
-      hotspots.forEach(function (hotspot) {
-          let js = index?',':'';
-          js += 
-            '{\n'+
-            '  "rect": [\n'+
-            '    '+hotspot.x+',\n'+
-            '    '+hotspot.y+',\n'+
-            '    '+(hotspot.x+hotspot.width)+',\n'+
-            '    '+(hotspot.y+hotspot.height)+'\n'+
-            '   ],\n';
-
-            if(hotspot.artboardName!=undefined){                          
-              js += '   "page": ' + this.artboardsDict[hotspot.artboardName]+'\n';              
-            }else{              
-              if(hotspot.target!=undefined){   
-               js += '   "target": "'+hotspot.target+'",\n';
-              }
-              js += '   "url": "'+hotspot.href+'"\n';                    
-            }
-                  
-            js += '  }\n';
-         
-          resultJs += js;
-
-          index++;
-      }, this);
+    if(hotspot.artboardName!=undefined){ 
+      const targetBoard = this.artboardsDict[hotspot.artboardName];
+      if(targetBoard==undefined){
+        log("undefined artboard: '"+hotspot.artboardName + '"');
+        return '';     
+      }              
+      js += '   "page": ' + this.artboardsDict[hotspot.artboardName]+'\n';
+    }else{              
+      if(hotspot.target!=undefined){   
+       js += '   "target": "'+hotspot.target+'",\n';
+      }
+      js += '   "url": "'+hotspot.href+'"\n';                    
     }
-
-    return resultJs;
+          
+    js += '  }\n';
+ 
+    return js;
   }
 
 

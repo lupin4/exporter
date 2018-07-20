@@ -7,7 +7,7 @@
   "appcast": "https://raw.githubusercontent.com/MaxBazarov/exporter/master/appcast.xml",
   "compatibleVersion": 3,
   "bundleVersion": 1,
-  "version" : "1.2.0",
+  "version" : "1.2.1",
   "commands" : [   
     {
       "script" : "external_link.js",
