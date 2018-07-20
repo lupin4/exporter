@@ -128,15 +128,22 @@ a, a:focus {
 	transition: var(--transition);
 }
 
+
+#nav .nav-set li.nav-item-icon.disabled {
+	opacity: .2;
+}
+
+#nav .nav-set li.nav-item-icon.disabled,
+#nav .nav-set li.nav-item-icon.disabled a:hover {
+	transition: none;
+	background-color: transparent;
+	color: var(--font-color);
+	cursor: default;
+}
+
 #nav-right-hide {
 	background-image: none;
 	max-width: calc(4*var(--cell));
-}
-
-
-
-#nav-right {
-	float: right;
 }
 
 .screen #nav-right-hide li a:hover, #nav-right-hide li a:active {
