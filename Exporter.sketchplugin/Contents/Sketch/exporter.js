@@ -331,7 +331,7 @@ class Exporter {
 
     let s = "";
     s += '<!DOCTYPE html>\n<html>\n<head>\n<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">\n';
-    s += '<meta name="generator" content="Generated using Exporter Skerch Plugin - https://github.com/MaxBazarov/exporter">\n';
+    s += '<meta name="generator" content="Generated using Exporter Sketch Plugin - https://github.com/MaxBazarov/exporter">\n';
     s += '<title>'+docName+'</title>\n';
     s += '<link rel="stylesheet" type="text/css" href="resources/fa/css/all.min.css"/>\n';
     s += '<link rel="stylesheet" type="text/css" href="resources/viewer.css">\n';
